@@ -29,11 +29,15 @@ SDLFLAGS := $(shell pkg-config --cflags sdl2)
 SDLLIBS := $(shell pkg-config --libs sdl2)
 CURLFLAGS := $(shell curl-config --cflags)
 CURLLIBS := $(shell curl-config --libs)
+MODBUSFLAGS := $(shell pkg-config --cflags libmodbus)
+MODBUSLIBS := $(shell pkg-config --libs libmodbus)
 
 CPPFLAGS += $(SDLFLAGS)
 CPPFLAGS += $(CURLFLAGS)
+CPPFLAGS += $(MODBUSFLAGS)
 LDFLAGS += $(CURLLIBS)
 LDFLAGS += $(SDLLIBS)
+LDFLAGS += $(MODBUSLIBS)
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

@@ -1,7 +1,10 @@
 #include "application.h"
+
 #include <SDL2/SDL.h>
-#include <chrono>
+#include <SDL2/SDL_image.h>
+//#include <chrono>
 #include <iostream>
+#include <string>
 
 #include "imgui/imgui_impl_sdl2.h"
 #include "imgui/imgui_impl_sdlrenderer2.h"
@@ -20,6 +23,7 @@ Application::Application()
 
     m_window = new window(std::string{"Application"}, 480, 320);
     m_wxdata = new wxdata();
+    m_doorctrl = new doorctrl("172.25.0.130");
 }
 
 Application::~Application()
@@ -40,7 +44,8 @@ int Application::Run()
     ImGuiIO& io{ImGui::GetIO()}; (void)io;
 
     //io.Fonts->AddFontFromFileTTF("futura.ttf", 80.0f);
-    io.Fonts->AddFontFromMemoryCompressedTTF(font_futura_compressed_data, font_futura_compressed_size, 60.0f);
+    ImFont* futura60 = io.Fonts->AddFontFromMemoryCompressedTTF(font_futura_compressed_data, font_futura_compressed_size, 60.0f);
+    ImFont* futura20 = io.Fonts->AddFontFromMemoryCompressedTTF(font_futura_compressed_data, font_futura_compressed_size, 20.0f);
 
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
@@ -51,6 +56,7 @@ int Application::Run()
     bool first_run = true;
 
     //m_wxdata->Refresh();
+
 
     constexpr unsigned long dispRefreshRate = 1000;
     constexpr unsigned long wxRefreshRate = 100000;
@@ -67,8 +73,15 @@ int Application::Run()
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_KEYDOWN)
             {
-                if (event.key.keysym.sym == SDLK_q)
+                switch(event.key.keysym.sym)
+                {
+                case SDLK_q:
                     Stop();
+                    break;
+                case SDLK_d:
+                    m_doorctrl->Operate();
+                    break;
+                }
             }
             else if (event.type == SDL_QUIT)
             {
@@ -96,6 +109,8 @@ int Application::Run()
             dispExpTime = currentTime + dispRefreshRate;
             errStr.clear();
 
+            
+
             ImGui_ImplSDLRenderer2_NewFrame();
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
@@ -108,13 +123,16 @@ int Application::Run()
             //char timestring[25];
             //std::strftime(std::data(timestring), std::size(timestring), "%X", std::localtime(&time));
 
-            ImGui::Begin("TempPanel", &m_show_some_panel, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
+            ImGui::Begin("TempPanel", &m_show_panel, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
             //ImGui::Text("%ld    %ld", dispExpTime, wxExpTime);
             //ImGui::Button("Button!", {100,50});
+            ImGui::PushFont(futura60);
             ImGui::Text(" ");
             ImGui::Text("%sF  %s%%", m_wxdata->GetTemp().c_str(), m_wxdata->GetRH().c_str());
             //ImGui::Text("%s%% RH", m_wxdata->GetRH().c_str());
+            ImGui::TextColored(m_doorctrl->GetStatus() ? ImVec4{0xFF, 0x00, 0x00, 0xFF} : ImVec4{0x00, 0xFF, 0x00, 0xFF}, "Garage Door");
             ImGui::Text("%s", errStr.c_str());
+            ImGui::PopFont();
             ImGui::End();
         
 
