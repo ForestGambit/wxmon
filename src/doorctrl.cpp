@@ -9,12 +9,11 @@ doorctrl::doorctrl(const char* addr, int port, float pulse_duration)
 {
     m_modbus = modbus_new_tcp(m_doorIP.c_str(), port);
 
-    modbus_connect(m_modbus);
+    
 }
 
 doorctrl::~doorctrl()
 {
-    modbus_close(m_modbus);
     modbus_free(m_modbus);
 }
 
@@ -22,8 +21,9 @@ doorctrl::~doorctrl()
 bool doorctrl::GetStatus()
 {
     uint8_t inputreg;
+    modbus_connect(m_modbus);
     int status = modbus_read_input_bits(m_modbus, 0, 1, &inputreg);
-
+    modbus_close(m_modbus);
 
     if(inputreg == 1)
         m_status = false;

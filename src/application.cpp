@@ -47,6 +47,8 @@ int Application::Run()
     ImFont* futura60 = io.Fonts->AddFontFromMemoryCompressedTTF(font_futura_compressed_data, font_futura_compressed_size, 60.0f);
     ImFont* futura20 = io.Fonts->AddFontFromMemoryCompressedTTF(font_futura_compressed_data, font_futura_compressed_size, 20.0f);
 
+    io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     ImGui_ImplSDL2_InitForSDLRenderer(m_window->GetWindow(), m_window->GetRenderer());
@@ -87,6 +89,10 @@ int Application::Run()
             {
                 Stop();
             }
+            else if (event.type == SDL_FINGERDOWN)
+            {
+                io.AddMouseButtonEvent(0, (event.type == SDL_MOUSEBUTTONDOWN));
+            }
         }
 
         std::string errStr{};
@@ -125,7 +131,7 @@ int Application::Run()
 
             ImGui::Begin("TempPanel", &m_show_panel, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings);
             //ImGui::Text("%ld    %ld", dispExpTime, wxExpTime);
-            //ImGui::Button("Button!", {100,50});
+            ImGui::Button("Button!", {100,50});
             ImGui::PushFont(futura60);
             ImGui::Text(" ");
             ImGui::Text("%sF  %s%%", m_wxdata->GetTemp().c_str(), m_wxdata->GetRH().c_str());
